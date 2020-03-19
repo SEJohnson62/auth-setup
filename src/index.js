@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { render } from 'react-dom';
 import axios from 'axios';
 import qs from 'qs';
+
 const root = document.querySelector('#root');
 
 
@@ -42,4 +44,4 @@ const App = ()=> {
   );
 };
 
-render(<App />, root); 
+ReactDOM.render(<App />, root);
