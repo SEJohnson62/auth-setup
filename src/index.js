@@ -20,7 +20,34 @@ const App = ()=> {
       username,
       password
     };
-    console.log(credentials);
+    console.log("In onSubmit, credentials=", credentials);
+    axios.post('/api/auth', credentials)
+    .then( response => {
+      console.log("In onSubmit, response.data,token=", response.data.token);
+      window.localStorage.setItem('token', response.data.token);
+      attemptLoginFromToken();
+    })
+    .catch( ex => setError(ex.response.data.message));
+  };
+
+  useEffect(()=> attemptLoginFromToken(), []);
+
+  const attemptLoginFromToken = ()=> {
+    const token = window.localStorage.getItem('token');
+    console.log("In attemptLoginFromToken, token =", token);
+    if(!token){
+      return;
+    }
+    const headers = { authentication: token };
+    console.log("In attemptLoginFromToken, headers=", headers);
+    axios.get('/api/auth', {headers})
+    .then( response => setAuth( response.data ))
+    .catch( ex => setError(ex.response.data.message));
+  };
+
+  const logout = ()=> {
+    window.localStorage.removeItem('token');
+    setAuth({});
   };
 
   return (

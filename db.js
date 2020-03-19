@@ -36,17 +36,15 @@ const sync = async()=> {
   ]);
 
   //Link tables via role_id
-  const [lucy, moe] = await Promise.all([
-    createUser({ username: 'moe', password: 'MOE', role_id: Admin.id}),
+  const [lucy, moe, curly] = await Promise.all([
     createUser({ username: 'lucy', password: 'LUCY', role_id: User.id}),
+    createUser({ username: 'moe', password: 'MOE', role_id: Admin.id}),
     createUser({ username: 'curly', password: 'CURLY', role_id: User.id})
   ]);
-/*
-  // Read seeded data
-  await authenticate({ username: 'lucy', password: 'LUCY'});
-  const token = await authenticate({ username: 'moe', password: 'MOE'});
-  const user = await findUserFromToken(token);
-  */
+
+  return {
+    lucy, moe, curly
+  };
 };//end sync
 
 const findUserFromToken = async(token)=> {
@@ -89,7 +87,6 @@ const createRole = async({ title }) => {
   const SQL = 'INSERT INTO roles(title) VALUES ($1) RETURNING *';
   return( await client.query(SQL, [title])).rows[0];
 }
-
 
 //TODO
 const saltRounds = 10;
