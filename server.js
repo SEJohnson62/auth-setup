@@ -7,8 +7,9 @@ const db = require('./db');
 
 // middlewear
 
-app.use((req, res,next)=> {
-  if(!req.header.authentication){
+app.use((req, res, next)=> {
+  console.log("In app.use, req=", req);
+  if(!req.headers.authentication){
     return next();
   }
   db.findUserFromToken(req.headers.authentication)
@@ -23,33 +24,36 @@ app.use((req, res,next)=> {
   });
 });
 
-app.use('/dist', express.static(path.join(__dirname, 'dist')));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-
-app.get('/', (req, res, next)=> res.sendFile(path.join(__dirname, 'index.html')));
-
-app.get('/api/auth', (req, res, next)=>{
+const isLoggedIn = (req, res, next)=> {
   if(!req.user){
     const error = Error('bad credentials');
     error.status = 401;
     return next(error);
   }
+  next();
+};
+
+app.use('/dist', express.static(path.join(__dirname, 'dist')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+app.get('/', (req, res, next)=> res.sendFile(path.join(__dirname, 'index.html')));
+
+app.get('/api/auth', isLoggedIn, (req, res, next)=>{
   res.send(req.user);
 });
 
-/*
-app.get('/api/auth', (req, res, next)=> {
+app.get('/api/user', isLoggedIn, (req, res, next)=> {
   db.readUser()
   .then(response => res.send(response))
   .catch(next)
 });
 
-app.get('/api/auth', (req, res, next)=> {
+app.get('/api/role', isLoggedIn, (req, res, next)=> {
   db.readRoles()
   .then(response => res.send(response))
   .catch(next)
 });
-*/
+
 app.post('/api/auth', (req, res, next)=> {
   db.authenticate(req.body)
   .then( token=> res.send({ token }))
